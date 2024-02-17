@@ -171,7 +171,7 @@ export const chnagePasswordController = async (req, res) => {
     if (!match) {
       return res.status(401).send({
         success: false,
-        message: "Invalid Password",
+        message: "Current Password is not matched!",
       });
     }
 
