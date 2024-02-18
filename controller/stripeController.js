@@ -59,8 +59,12 @@ const createHandleOrdr = async (customer, data) => {
     zlib.inflateSync(Buffer.from(customer.metadata.cart, "base64")).toString()
   );
 
+  const user = await userModels.findById({ _id: customer.metadata.id });
+
   updateProduct(items);
-  updateUserRole(customer.metadata.id);
+  if (user.role !== 1) {
+    updateUserRole(customer.metadata.id);
+  }
 
   const newOrder = new orderModel({
     user: customer.metadata.id,
