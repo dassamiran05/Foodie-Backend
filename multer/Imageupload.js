@@ -12,15 +12,15 @@ dotenv.config();
 
 // img storage path
 const imgconfig = multer.diskStorage({
-  destination: (req, file, callback) => {
-    const uploadDir = "../uploads";
+  // destination: (req, file, callback) => {
+  //   const uploadDir = "../uploads";
 
-    if (!fs.existsSync(uploadDir)) {
-      fs.mkdirSync(uploadDir, { recursive: true });
-    }
+  //   if (!fs.existsSync(uploadDir)) {
+  //     fs.mkdirSync(uploadDir, { recursive: true });
+  //   }
 
-    callback(null, uploadDir);
-  },
+  //   callback(null, uploadDir);
+  // },
   filename: (req, file, callback) => {
     callback(null, `image-${Date.now()}.${file.originalname}`);
   },
