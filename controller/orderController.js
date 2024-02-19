@@ -1,33 +1,45 @@
 import slugify from "slugify";
 import orderModel from "../models/orderModel.js";
 import moment from "moment";
+import userModels from "../models/userModels.js";
 
 export const allOrdersController = async (req, res) => {
   try {
+    const { limit, page, search } = req.query;
+    console.log(req.query);
 
+    const limit2 = Number(limit);
+    const pageNo = Number(page);
 
-    // const perpage = 5;
-    // const { page } = req.params;
-    //   const page = parseInt(req.query.page);
-    //   const limit = parseInt(req.query.limit);
+    // const pagepro = page ? page : 1;
 
-    //   const pagepro = page ? page : 1;
+    // const datacount = await orderModel.find({});
+    // const nPages = Math.ceil(datacount.length / limit2);
 
-    //   const datacount = await productModel.find({});
-
-    //   const nPages = Math.ceil(datacount.length / limit);
+    let searchQuery = {};
+    if (search) {
+      const user = await userModels.findOne({ name: search });
+      searchQuery = {
+        $or: [
+          { user: user?._id },
+          { "products.name": { $regex: search, $options: "i" } },
+        ],
+      };
+    }
+    const count = await orderModel.countDocuments(searchQuery);
     const orders = await orderModel
-      .find({})
+      .find(searchQuery)
       .populate({
         path: "user",
         select:
           "-password -about -country -createdAt -phone -profile -role -updatedAt -__v -_id",
       })
 
-      // .skip((pagepro - 1) * limit)
-      // .limit(limit)
+      .skip((pageNo - 1) * limit2)
+      .limit(limit2)
       .sort("-createdAt")
       .exec();
+    const pageCount = Math.ceil(count / limit2);
 
     const plainObjects = orders.map((order) => order.toObject());
     const updatedVersion = plainObjects.map((order) => {
@@ -40,17 +52,21 @@ export const allOrdersController = async (req, res) => {
       };
     });
 
-
-    if (orders.length === 0) {
-      return res.status(403).send({
-        success: false,
-        message: "Currently there is no order in the database",
-      });
-    }
+    // if (orders.length === 0) {
+    //   return res.status(403).send({
+    //     success: false,
+    //     message: "Currently there is no order in the database",
+    //   });
+    // }
     res.status(200).send({
       success: true,
       message: "All Orders successfully fetched",
       orders: updatedVersion,
+      // pagecount: nPages,
+      pagination: {
+        count,
+        pageCount,
+      },
     });
   } catch (error) {
     res.status(500).send({

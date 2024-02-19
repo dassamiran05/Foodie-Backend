@@ -6,6 +6,7 @@ import {
   deleteReviewProduct,
   featuredProductsController,
   getProducts,
+  getProductsControllerByCategory,
   reviewProduct,
   singleProduct,
   updateProduct,
@@ -30,6 +31,10 @@ router.post(
 
 //Get products
 router.get("/getproducts", getProducts);
+
+
+//Get products by category
+router.get("/getproductsbycategory/:category", getProductsControllerByCategory);
 
 //Get Single product
 router.get("/singleproduct/:id", singleProduct);

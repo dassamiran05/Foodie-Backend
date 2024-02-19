@@ -7,6 +7,7 @@ import moment from "moment";
 
 import fs from "fs";
 import v2 from "../helper/cloudinaryconfig.js";
+import categoryModel from "../models/categoryModel.js";
 
 export const createProduct = async (req, res) => {
   try {
@@ -79,6 +80,33 @@ export const getProducts = async (req, res) => {
       count: datacount.length,
       numPage: nPages,
       products,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({
+      success: false,
+      message: "Erorr in getting products",
+      error: error.message,
+    });
+  }
+};
+export const getProductsControllerByCategory = async (req, res) => {
+  try {
+    const { category } = req.params;
+    // console.log(category);
+
+    const categoryId = await categoryModel.findOne({ name: category });
+
+    const products = await productModel.find({}).populate("category").exec();
+
+    const categoryProducts = products.filter(
+      (product) => product.category.name === categoryId.name
+    );
+
+    res.status(200).send({
+      success: true,
+      message: "All products successfully fetched by category",
+      products: categoryProducts,
     });
   } catch (error) {
     console.log(error);
@@ -386,15 +414,12 @@ export const reviewProduct = async (req, res) => {
       },
     ];
 
-
     product.save();
-    res
-      .status(200)
-      .send({
-        message: `Review successfully submitted for ${product?.name}`,
-        success: true,
-        rating: product?.rating,
-      });
+    res.status(200).send({
+      message: `Review successfully submitted for ${product?.name}`,
+      success: true,
+      rating: product?.rating,
+    });
   } catch (error) {
     res.status(500).send({
       success: false,
