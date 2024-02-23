@@ -158,7 +158,9 @@ export const allOrdersByFilterController = async (req, res) => {
       createdAt: { $gte: startDate, $lte: endDate },
     });
 
-    const user = await userModels.findOne({ name: search });
+    const user = await userModels.findOne({
+      name: { $regex: search, $options: "i" },
+    });
 
     const ordersData = await orderModel
       .find({

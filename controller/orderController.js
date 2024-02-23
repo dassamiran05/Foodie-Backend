@@ -18,7 +18,9 @@ export const allOrdersController = async (req, res) => {
 
     let searchQuery = {};
     if (search) {
-      const user = await userModels.findOne({ name: search });
+      const user = await userModels.findOne({
+        name: { $regex: search, $options: "i" },
+      });
       searchQuery = {
         $or: [
           { user: user?._id },
